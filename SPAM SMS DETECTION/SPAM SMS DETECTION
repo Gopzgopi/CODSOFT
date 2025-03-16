@@ -1,0 +1,56 @@
+import pandas as pd
+import numpy as np
+import re
+import string
+import joblib
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, classification_report
+
+# Load dataset from Kaggle input folder
+df = pd.read_csv("/kaggle/input/spam-detection/spam_dataset.csv", encoding='latin-1')
+df = df.iloc[:, [0, 1]]
+df.columns = ['label', 'message']
+
+df['label'] = df['label'].map({'ham': 0, 'spam': 1})
+
+def clean_text(text):
+    text = text.lower()
+    text = re.sub(f"[{string.punctuation}]", "", text)
+    text = re.sub(r"\d+", "", text)
+    return text
+
+df['message'] = df['message'].apply(clean_text)
+
+# Splitting dataset
+X_train, X_test, y_train, y_test = train_test_split(df['message'], df['label'], test_size=0.2, random_state=42)
+
+# Text Vectorization
+vectorizer = TfidfVectorizer()
+X_train_vec = vectorizer.fit_transform(X_train)
+X_test_vec = vectorizer.transform(X_test)
+
+# Model Training and Evaluation
+models = {
+    "Naive Bayes": MultinomialNB(),
+    "Logistic Regression": LogisticRegression(),
+    "SVM": SVC()
+}
+
+for name, model in models.items():
+    model.fit(X_train_vec, y_train)
+    y_pred = model.predict(X_test_vec)
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f'{name} Accuracy: {accuracy:.4f}')
+    print(classification_report(y_test, y_pred))
+    joblib.dump(model, f"{name.replace(' ', '_').lower()}_classifier.pkl")
+
+# Save vectorizer
+joblib.dump(vectorizer, "tfidf_vectorizer.pkl")
+
+# Generate Kaggle output command
+print("\nRun the following command to save outputs in Kaggle:")
+print("kaggle kernels output gopikad/spam-sms-detection -p /path/to/dest")
