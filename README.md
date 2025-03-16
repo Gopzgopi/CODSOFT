@@ -81,13 +81,3 @@ Classify SMS messages as **Spam** or **Ham** using NLP techniques.
 3. Input SMS text and classify it as spam or ham  
 
 ---
-
-## 📢 Contributions  
-Feel free to contribute by improving the models or adding new features! 🚀  
-
-## 📩 Contact  
-For any queries, reach out via GitHub Issues.  
-
----
-
-This **README.md** provides a structured and professional look for your repository. Let me know if you need any changes! 😊
